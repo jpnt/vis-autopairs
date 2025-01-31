@@ -13,7 +13,6 @@ vis.events.subscribe(vis.events.INPUT, function(key)
 
     local close = auto_pairs[key]
     if close then
-        -- Process all selections in reverse order to handle multiple cursors
         local sorted = {}
         for _, sel in ipairs(win.selections) do
             table.insert(sorted, sel)
@@ -23,13 +22,13 @@ vis.events.subscribe(vis.events.INPUT, function(key)
         for _, sel in ipairs(sorted) do
             local pos = sel.pos
             win.file:insert(pos, key .. close)
-            sel.pos = pos + 1 -- Move cursor between the pair
+            sel.pos = pos + 1
         end
         return true
     end
 
     if key == ")" or key == "}" or key == "]" then
-        -- Check if next character matches and skip if so
+        local moved = false
         local sorted = {}
         for _, sel in ipairs(win.selections) do
             table.insert(sorted, sel)
@@ -41,9 +40,10 @@ vis.events.subscribe(vis.events.INPUT, function(key)
             local next_char = win.file:content(cursor, cursor + 1):sub(1, 1)
             if next_char == key then
                 sel.pos = cursor + 1
+                moved = true
             end
         end
-        return true
+        return moved
     end
 
     return false
